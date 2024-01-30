@@ -15,6 +15,7 @@ class CustomVideoPlayer extends StatefulWidget {
 
 class CustomVideoPlayerState extends State<CustomVideoPlayer> {
   VideoPlayerController? videoController;
+  Duration currentPosition = Duration();
 
   @override
   void initState() {
@@ -52,15 +53,34 @@ class CustomVideoPlayerState extends State<CustomVideoPlayer> {
             onForewordPressed: onForewordPressed,
             isPlaying: videoController!.value.isPlaying,
           ),
+          _NewVideo(
+            onPressed: onNewVideoPressed,
+          ),
           Positioned(
+            bottom: 0,
             right: 0,
-            child: IconButton(
-              onPressed: () {},
-              color: Colors.white,
-              iconSize: 30.0,
-              icon: Icon(
-                Icons.photo_camera_back,
-              ),
+            left: 0,
+            child: Row(
+              children: [
+                Text(
+                  '${currentPosition.inMinutes} : ${currentPosition.inSeconds.toString().padLeft(2, '0')}',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+                Expanded(
+                  child: Slider(
+                    value: currentPosition.inSeconds.toDouble(),
+                    onChanged: (double val) {
+                      setState(() {
+                        currentPosition = Duration(seconds: val.toInt());
+                      });
+                    },
+                    max: videoController!.value.duration.inSeconds.toDouble(),
+                    min: 0,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -68,12 +88,14 @@ class CustomVideoPlayerState extends State<CustomVideoPlayer> {
     );
   }
 
+  void onNewVideoPressed() {}
+
   void onReversePressed() {
     final currentPosition = videoController!.value.position;
 
     Duration position = Duration();
 
-    if(currentPosition.inSeconds > 3){
+    if (currentPosition.inSeconds > 3) {
       position = currentPosition - Duration(seconds: 3);
     }
 
@@ -96,7 +118,8 @@ class CustomVideoPlayerState extends State<CustomVideoPlayer> {
 
     Duration position = maxPosition;
 
-    if((maxPosition - Duration(seconds: 3)).inSeconds > currentPosition.inSeconds){
+    if ((maxPosition - Duration(seconds: 3)).inSeconds >
+        currentPosition.inSeconds) {
       position = currentPosition + Duration(seconds: 3);
     }
 
@@ -153,6 +176,27 @@ class _Controls extends StatelessWidget {
       color: Colors.white,
       icon: Icon(
         iconData,
+      ),
+    );
+  }
+}
+
+class _NewVideo extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const _NewVideo({super.key, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      right: 0,
+      child: IconButton(
+        onPressed: onPressed,
+        color: Colors.white,
+        iconSize: 30.0,
+        icon: Icon(
+          Icons.photo_camera_back,
+        ),
       ),
     );
   }
